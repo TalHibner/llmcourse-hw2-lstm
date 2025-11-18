@@ -129,7 +129,8 @@ def evaluate_by_frequency(
 
 def compute_metrics(
     train_mse: float,
-    test_mse: float
+    test_mse: float,
+    computational_metrics: Optional[Dict] = None
 ) -> Dict:
     """
     Compute evaluation metrics and generalization check.
@@ -137,6 +138,7 @@ def compute_metrics(
     Args:
         train_mse: MSE on training set
         test_mse: MSE on test set
+        computational_metrics: Optional computational cost metrics from training
 
     Returns:
         metrics: Dictionary of metrics
@@ -151,6 +153,10 @@ def compute_metrics(
         'generalization_ratio': float(generalization_ratio),
         'generalizes_well': generalization_gap < 0.01  # Threshold from assignment
     }
+
+    # Add computational metrics if provided
+    if computational_metrics is not None:
+        metrics['computational_metrics'] = computational_metrics
 
     return metrics
 
@@ -180,6 +186,24 @@ def print_metrics(metrics: Dict):
 
     print("="*70)
 
+    # Print computational metrics if available
+    if 'computational_metrics' in metrics:
+        comp = metrics['computational_metrics']
+        print()
+        print("="*70)
+        print("Computational Cost Metrics")
+        print("="*70)
+        print(f"Device Used:          {comp.get('device_used', 'N/A')}")
+        print(f"Model Parameters:     {comp.get('num_model_parameters', 0):,}")
+        print(f"Batch Size:           {comp.get('batch_size', 'N/A')}")
+        print(f"Epochs Completed:     {comp.get('epochs_completed', 'N/A')}")
+        print(f"Training Time:        {comp.get('total_training_time_seconds', 0):.2f}s ({comp.get('total_training_time_minutes', 0):.2f} min)")
+        print(f"Avg Time/Epoch:       {comp.get('average_time_per_epoch_seconds', 0):.2f}s")
+        print(f"Learning Rate:        {comp.get('learning_rate_initial', 'N/A')} → {comp.get('learning_rate_final', 'N/A')}")
+        if comp.get('early_stopped', False):
+            print(f"Early Stopping:       Yes")
+        print("="*70)
+
 
 def save_metrics(metrics: Dict, filename: str = 'results/metrics.json'):
     """
@@ -192,15 +216,23 @@ def save_metrics(metrics: Dict, filename: str = 'results/metrics.json'):
     import os
     os.makedirs(os.path.dirname(filename), exist_ok=True)
 
-    # Convert all values to JSON-serializable types
-    metrics_serializable = {}
-    for key, value in metrics.items():
-        if isinstance(value, (np.bool_, bool)):
-            metrics_serializable[key] = bool(value)
-        elif isinstance(value, (np.integer, np.floating)):
-            metrics_serializable[key] = float(value)
+    def convert_to_serializable(obj):
+        """Recursively convert numpy types to Python types."""
+        if isinstance(obj, dict):
+            return {k: convert_to_serializable(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [convert_to_serializable(item) for item in obj]
+        elif isinstance(obj, (np.bool_, bool)):
+            return bool(obj)
+        elif isinstance(obj, (np.integer, int)):
+            return int(obj)
+        elif isinstance(obj, (np.floating, float)):
+            return float(obj)
         else:
-            metrics_serializable[key] = value
+            return obj
+
+    # Convert all values to JSON-serializable types
+    metrics_serializable = convert_to_serializable(metrics)
 
     with open(filename, 'w') as f:
         json.dump(metrics_serializable, f, indent=2)

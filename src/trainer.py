@@ -263,12 +263,28 @@ def train_model(
 
     total_time = time.time() - start_time
 
+    # Add computational metrics to history
+    num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    history['computational_metrics'] = {
+        'total_training_time_seconds': round(total_time, 2),
+        'total_training_time_minutes': round(total_time / 60, 2),
+        'average_time_per_epoch_seconds': round(total_time / len(history['epochs']), 2),
+        'device_used': str(device),
+        'num_model_parameters': num_params,
+        'epochs_completed': len(history['epochs']),
+        'early_stopped': len(history['epochs']) < num_epochs,
+        'batch_size': train_loader.batch_size,
+        'learning_rate_initial': learning_rate,
+        'learning_rate_final': history['learning_rates'][-1] if history['learning_rates'] else learning_rate
+    }
+
     if verbose:
         print()
         print("="*70)
         print("Training Complete!")
         print("="*70)
         print(f"Total time: {total_time:.2f}s ({total_time/60:.2f} minutes)")
+        print(f"Average time per epoch: {history['computational_metrics']['average_time_per_epoch_seconds']:.2f}s")
         print(f"Best test loss: {best_test_loss:.6f}")
         print(f"Final train loss: {history['train_loss'][-1]:.6f}")
         print(f"Model saved to: {save_path}")

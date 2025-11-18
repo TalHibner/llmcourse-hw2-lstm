@@ -143,8 +143,9 @@ def main():
 
     print()
 
-    # Compute metrics
-    metrics = compute_metrics(train_mse, test_mse)
+    # Compute metrics (include computational metrics from training if available)
+    computational_metrics = history.get('computational_metrics', None)
+    metrics = compute_metrics(train_mse, test_mse, computational_metrics)
     print_metrics(metrics)
     save_metrics(metrics, 'results/metrics.json')
 
