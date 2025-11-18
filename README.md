@@ -100,22 +100,29 @@ llmcourse-hw2-lstm/
 ├── notebooks/                  # Jupyter notebooks
 │   └── lstm_frequency_extraction.ipynb
 │
-├── data/                       # Generated datasets (gitignored)
+├── data/                       # Generated datasets
 │   ├── train_dataset.npz       # Training set (seed #1)
 │   └── test_dataset.npz        # Test set (seed #2)
 │
-├── models/                     # Trained models (gitignored)
+├── models/                     # Trained models
 │   └── best_model.pth
 │
-├── results/                    # Results and visualizations (gitignored)
+├── results/                    # Results and visualizations
 │   ├── metrics.json
 │   └── plots/
 │       ├── training_curve.png
 │       ├── freq_comparison.png
 │       └── all_frequencies.png
 │
-├── tests/                      # Unit tests
-│   └── test_data_generator.py
+├── prompts/                    # Claude CLI documentation
+│   └── *.png                   # Development screenshots
+│
+├── tests/                      # Comprehensive test suite (121 tests)
+│   ├── test_data_generator.py  # Dataset generation tests (28 tests)
+│   ├── test_model.py           # LSTM model tests (27 tests)
+│   ├── test_trainer.py         # Training loop tests (19 tests)
+│   ├── test_evaluator.py       # Evaluation tests (26 tests)
+│   └── test_visualizer.py      # Visualization tests (21 tests)
 │
 ├── PRD.md                      # Product Requirements Document
 ├── DESIGN.md                   # Technical Design Document
@@ -223,10 +230,44 @@ input = [S[t], *C]  # Concatenate signal and selection vector
 
 ## Testing
 
-Run unit tests:
+The project includes a comprehensive test suite with **121 tests** covering all major functionality.
+
+### Running Tests
+
+Run all tests:
 ```bash
-uv run pytest tests/
+uv run pytest tests/ -v
 ```
+
+Run specific test file:
+```bash
+uv run pytest tests/test_model.py -v
+```
+
+Run with coverage report:
+```bash
+uv run pytest tests/ --cov=src --cov-report=html
+```
+
+### Test Coverage
+
+| Test File | Tests | Coverage |
+|-----------|-------|----------|
+| **test_data_generator.py** | 28 | Signal generation, dataset creation, file I/O, seed reproducibility |
+| **test_model.py** | 27 | LSTM architecture, forward pass, hidden state management, dataset/dataloader |
+| **test_trainer.py** | 19 | Training/validation epochs, model training, checkpoints, early stopping |
+| **test_evaluator.py** | 26 | Model evaluation, metrics computation, predictions saving |
+| **test_visualizer.py** | 21 | All plotting functions, file creation, visualization workflow |
+
+### Key Test Areas
+
+- ✅ **Model Architecture**: LSTM initialization, forward propagation, state reset
+- ✅ **Data Generation**: Noisy signals, mixed signals, ground truth, one-hot encoding
+- ✅ **Training Loop**: Weight updates, gradient handling, early stopping, checkpointing
+- ✅ **Evaluation**: MSE calculation, frequency-separated results, generalization metrics
+- ✅ **Visualization**: Training curves, frequency comparisons, metrics plots
+- ✅ **File I/O**: Dataset saving/loading, model checkpoints, predictions export
+- ✅ **Edge Cases**: Empty inputs, shape mismatches, zero division handling
 
 ## Assignment Requirements Checklist
 
@@ -237,6 +278,7 @@ uv run pytest tests/
 - ✅ Evaluate generalization on test set
 - ✅ Generate required visualizations
 - ✅ Demonstrate noise robustness
+- ✅ Comprehensive test suite with 121 tests
 
 ## Future Enhancements
 
@@ -257,6 +299,12 @@ Main dependencies (see `pyproject.toml` for complete list):
 - **numpy** >= 1.24.0: Numerical computations
 - **matplotlib** >= 3.7.0: Visualization
 - **jupyter** >= 1.0.0: Interactive notebook environment
+
+Development dependencies:
+
+- **pytest** >= 7.0.0: Testing framework
+- **black** >= 23.0.0: Code formatting
+- **ruff** >= 0.1.0: Linting
 
 ## Author
 
@@ -314,5 +362,6 @@ For questions or issues:
 
 ---
 
-**Status**: Implementation in progress
+**Status**: ✅ Implementation Complete
 **Last Updated**: November 2025
+**Test Coverage**: 121 tests across 5 test files
