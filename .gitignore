@@ -17,22 +17,6 @@ ENV/
 .venv/
 uv.lock
 
-# Data files
-data/*.npz
-data/*.npy
-data/*.csv
-
-# Model files
-models/*.pth
-models/*.pt
-models/*.ckpt
-
-# Results
-results/
-*.png
-*.jpg
-*.pdf
-
 # IDE
 .vscode/
 .idea/
