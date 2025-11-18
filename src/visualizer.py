@@ -24,6 +24,10 @@ def plot_training_curve(
         history: Training history dictionary
         save_path: Path to save figure
     """
+    if not history or 'epochs' not in history:
+        print("Warning: No training history available. Skipping training curve plot.")
+        return
+
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))

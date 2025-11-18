@@ -192,8 +192,18 @@ def save_metrics(metrics: Dict, filename: str = 'results/metrics.json'):
     import os
     os.makedirs(os.path.dirname(filename), exist_ok=True)
 
+    # Convert all values to JSON-serializable types
+    metrics_serializable = {}
+    for key, value in metrics.items():
+        if isinstance(value, (np.bool_, bool)):
+            metrics_serializable[key] = bool(value)
+        elif isinstance(value, (np.integer, np.floating)):
+            metrics_serializable[key] = float(value)
+        else:
+            metrics_serializable[key] = value
+
     with open(filename, 'w') as f:
-        json.dump(metrics, f, indent=2)
+        json.dump(metrics_serializable, f, indent=2)
 
     print(f"Metrics saved to {filename}")
 
